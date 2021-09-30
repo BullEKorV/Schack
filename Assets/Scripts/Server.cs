@@ -29,15 +29,17 @@ public class Server : MonoBehaviour
 
         netListener.NetworkReceiveEvent += (client, reader, deliveryMethod) =>
         {
+            Debug.LogError("Server Recieved");
             // netProcessor.ReadAllPackets(reader, server);
 
             foreach (var peer in server.ConnectedPeerList)
             {
                 if (peer != client)
                 {
-                    peer.Send(reader.GetBytesWithLength(), DeliveryMethod.ReliableOrdered);
+                    peer.Send(reader.GetRemainingBytes(), DeliveryMethod.ReliableOrdered);
                 }
             }
+            reader.Recycle();
         };
 
         netListener.PeerConnectedEvent += (client) =>

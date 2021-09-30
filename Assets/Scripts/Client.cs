@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
+using System.Text;
 
 public class Client : MonoBehaviour
 {
@@ -23,31 +24,29 @@ public class Client : MonoBehaviour
 
         netListener.NetworkReceiveEvent += (server, reader, deliveryMethod) =>
         {
-            netPacketProcessor.ReadAllPackets(reader, server);
-        };
+            Debug.LogError("Recieved");
+            // netPacketProcessor.ReadAllPackets(reader, server);
+            Debug.LogError(server.ToString());
 
-        netPacketProcessor.SubscribeReusable<FooPacket>((packet) =>
-        {
-            // Debug.Log("Got a foo packet!");
-            // Debug.Log(packet.NumberValue);
-        });
+            Debug.LogError(reader.GetString());
+
+            reader.Recycle();
+        };
 
         client = new NetManager(netListener);
         client.Start();
-        client.Connect("192.168.0.69", 9050, "leo");
+        client.Connect("localhost", 9050, "leo");
     }
 
     void Update()
     {
         if (Input.GetKeyDown("h"))
         {
-            netPacketProcessor.Send(client.ConnectedPeerList[0], new FooPacket() { IpAdress = "ff", StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
+            Debug.LogError("Sending");
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put("cringe");
+            client.ConnectedPeerList[0].Send(writer, DeliveryMethod.ReliableOrdered);
         }
         client.PollEvents();
     }
-}
-public class FooPacket
-{
-    public string IpAdress { get; set; }
-    public string StringValue { get; set; }
 }
