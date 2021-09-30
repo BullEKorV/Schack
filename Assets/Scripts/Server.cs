@@ -21,8 +21,8 @@ public class Server : MonoBehaviour
 
         netListener.ConnectionRequestEvent += request =>
         {
-            if (server.ConnectedPeersCount < 10 /* max connections */)
-                request.AcceptIfKey("leo");
+            if (server.ConnectedPeersCount < 2 /* max connections */)
+                request.AcceptIfKey("schack");
             else
                 request.Reject();
         };
@@ -44,7 +44,7 @@ public class Server : MonoBehaviour
 
         netListener.PeerConnectedEvent += (client) =>
         {
-            Debug.LogError($"Client connected: {client.EndPoint}");
+            Debug.LogError($"[Server] Peer connected: {client.EndPoint}");
         };
 
         netListener.PeerDisconnectedEvent += (client, DisconnectInfo) =>

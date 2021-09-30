@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using UnityEngine;
-using System.Text;
 
 public class Client : MonoBehaviour
 {
@@ -25,8 +24,6 @@ public class Client : MonoBehaviour
         netListener.NetworkReceiveEvent += (server, reader, deliveryMethod) =>
         {
             Debug.LogError("Recieved");
-            // netPacketProcessor.ReadAllPackets(reader, server);
-            Debug.LogError(server.ToString());
 
             Debug.LogError(reader.GetString());
 
@@ -35,15 +32,26 @@ public class Client : MonoBehaviour
 
         client = new NetManager(netListener);
         client.Start();
-        client.Connect("localhost", 9050, "leo");
+        client.Connect("localhost", 9050, "schack");
     }
 
     void Update()
     {
+        if (Input.GetKeyDown("j"))
+        {
+            client.Start();
+            client.Connect("localhost", 9050, "schack");
+        }
+        if (Input.GetKeyDown("k"))
+        {
+            client.Stop();
+            Debug.LogError($"Disconnected from server");
+        }
         if (Input.GetKeyDown("h"))
         {
             Debug.LogError("Sending");
             NetDataWriter writer = new NetDataWriter();
+
             writer.Put("cringe");
             client.ConnectedPeerList[0].Send(writer, DeliveryMethod.ReliableOrdered);
         }
