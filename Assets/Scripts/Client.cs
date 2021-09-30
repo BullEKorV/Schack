@@ -9,12 +9,12 @@ public class Client : MonoBehaviour
 {
     EventBasedNetListener netListener;
     NetManager client;
-    NetPacketProcessor netPacketProcessor;
+    NetPacketProcessor netProcessor;
 
     void Start()
     {
         netListener = new EventBasedNetListener();
-        netPacketProcessor = new NetPacketProcessor();
+        netProcessor = new NetPacketProcessor();
 
         netListener.PeerConnectedEvent += (server) =>
         {
@@ -23,10 +23,10 @@ public class Client : MonoBehaviour
 
         netListener.NetworkReceiveEvent += (server, reader, deliveryMethod) =>
         {
-            netPacketProcessor.ReadAllPackets(reader, server);
+            netProcessor.ReadAllPackets(reader, server);
         };
 
-        netPacketProcessor.SubscribeReusable<FooPacket>((packet) =>
+        netProcessor.SubscribeReusable<FooPacket>((packet) =>
         {
             Debug.Log("Got a foo packet!");
             Debug.Log(packet.NumberValue);
@@ -34,12 +34,18 @@ public class Client : MonoBehaviour
 
         client = new NetManager(netListener);
         client.Start();
-        client.Connect("192.168.0.69", 9050, "uwu");
+        client.Connect("localhost", 9050, "leo");
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown("h"))
+        {
+            foreach (NetPeer peer in client.ConnectedPeerList)
+            {
+                netProcessor.Send(peer, new FooPacket() { NumberValue = 1, StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
+            }
+        }
         client.PollEvents();
     }
 }

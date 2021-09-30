@@ -22,7 +22,7 @@ public class Server : MonoBehaviour
         netListener.ConnectionRequestEvent += request =>
         {
             if (server.ConnectedPeersCount < 10 /* max connections */)
-                request.AcceptIfKey("uwu");
+                request.AcceptIfKey("leo");
             else
                 request.Reject();
         };
