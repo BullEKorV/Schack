@@ -27,12 +27,29 @@ public class Server : MonoBehaviour
                 request.Reject();
         };
 
+        netListener.NetworkReceiveEvent += (client, reader, deliveryMethod) =>
+        {
+            // netProcessor.ReadAllPackets(reader, server);
+
+            foreach (var peer in server.ConnectedPeerList)
+            {
+                if (peer != client)
+                {
+                    peer.Send(reader.GetBytesWithLength(), DeliveryMethod.ReliableOrdered);
+                }
+            }
+        };
+
         netListener.PeerConnectedEvent += (client) =>
         {
             Debug.LogError($"Client connected: {client.EndPoint}");
         };
-    }
 
+        netListener.PeerDisconnectedEvent += (client, DisconnectInfo) =>
+        {
+            Debug.LogError($"[Server] Peer disconnected: {client.EndPoint}, reason: {DisconnectInfo.Reason}");
+        };
+    }
     // Update is called once per frame
     void Update()
     {
@@ -40,7 +57,7 @@ public class Server : MonoBehaviour
         {
             foreach (NetPeer peer in server.ConnectedPeerList)
             {
-                netProcessor.Send(peer, new FooPacket() { NumberValue = 1, StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
+                // netProcessor.Send(peer, new FooPacket() { NumberValue = 1, StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
             }
         }
         server.PollEvents();

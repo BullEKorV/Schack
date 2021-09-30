@@ -9,12 +9,12 @@ public class Client : MonoBehaviour
 {
     EventBasedNetListener netListener;
     NetManager client;
-    NetPacketProcessor netProcessor;
+    NetPacketProcessor netPacketProcessor;
 
     void Start()
     {
         netListener = new EventBasedNetListener();
-        netProcessor = new NetPacketProcessor();
+        netPacketProcessor = new NetPacketProcessor();
 
         netListener.PeerConnectedEvent += (server) =>
         {
@@ -23,34 +23,31 @@ public class Client : MonoBehaviour
 
         netListener.NetworkReceiveEvent += (server, reader, deliveryMethod) =>
         {
-            netProcessor.ReadAllPackets(reader, server);
+            netPacketProcessor.ReadAllPackets(reader, server);
         };
 
-        netProcessor.SubscribeReusable<FooPacket>((packet) =>
+        netPacketProcessor.SubscribeReusable<FooPacket>((packet) =>
         {
-            Debug.Log("Got a foo packet!");
-            Debug.Log(packet.NumberValue);
+            // Debug.Log("Got a foo packet!");
+            // Debug.Log(packet.NumberValue);
         });
 
         client = new NetManager(netListener);
         client.Start();
-        client.Connect("localhost", 9050, "leo");
+        client.Connect("192.168.0.69", 9050, "leo");
     }
 
     void Update()
     {
         if (Input.GetKeyDown("h"))
         {
-            foreach (NetPeer peer in client.ConnectedPeerList)
-            {
-                netProcessor.Send(peer, new FooPacket() { NumberValue = 1, StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
-            }
+            netPacketProcessor.Send(client.ConnectedPeerList[0], new FooPacket() { IpAdress = "ff", StringValue = "Test" }, DeliveryMethod.ReliableOrdered);
         }
         client.PollEvents();
     }
 }
 public class FooPacket
 {
-    public int NumberValue { get; set; }
+    public string IpAdress { get; set; }
     public string StringValue { get; set; }
 }
